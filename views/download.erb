@@ -21,4 +21,30 @@
       5
     </div>
   </div>
+  <% @downloads.each do |download| %>
+  <div class="row">
+    <div class="span5"><%= download.title %></div>
+    <div class="span2">
+      <select class="input-small">
+        <option><%= download.format %></option>
+      </select>
+    </div>
+    <div class="span2">
+      <a class="downLink" href="<%= url("download/#{session[:code]}/#{download.id}") %>">http</a> | <a href="#">torrent</a>
+    </div>
+    <div class="span2 center">
+      5
+    </div>
+  </div>
+  <% end %>
 </div>
+<script>
+$(function () { 
+	$('.downLink').click(function () {
+		var $cnt_div = $(this).parent().next();
+		var dlcount = parseInt($cnt_div.text());
+		dlcount--;
+		$cnt_div.text(dlcount);
+	})
+});
+</script>
