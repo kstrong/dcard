@@ -38,13 +38,13 @@
   </div>
   <% end %>
 </div>
-<script>
+<script type="text/javascript">
 $(function () { 
 	$('.downLink').click(function () {
 		var $cnt_div = $(this).parent().next();
 		var dlcount = parseInt($cnt_div.text());
 		dlcount--;
 		$cnt_div.text(dlcount);
-	})
+	});
 });
 </script>
