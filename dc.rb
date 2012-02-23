@@ -35,6 +35,7 @@ class DownloadLog
 
     belongs_to :download, :key => true
 
+    property :id,         Serial
     property :code,       String
     property :ip_address, String
     property :email,      String
@@ -49,7 +50,7 @@ DataMapper.auto_upgrade!
 codes = ['secretsauce']
 
 get '/' do
-    'welcome'
+    redirect '/download'
 end
 
 get '/download' do
@@ -81,6 +82,8 @@ get '/download/:code' do
 end
 
 get '/download/:code/:download_id' do
+    halt 403 unless session[:code] == params[:code]
+    
     if ! codes.include? params[:code] 
         halt 404
     end
@@ -88,9 +91,8 @@ get '/download/:code/:download_id' do
     download = Download.first(:id => params[:download_id], 
                               :codes => { :code => params[:code] })
     
-    puts download.inspect
     if ! download
-        halt 403
+        halt 404
     end
 
     if download.storage == "local"
@@ -102,7 +104,11 @@ get '/download/:code/:download_id' do
           :format => download.format,
           :timestamp => Time.now
         )
-        send_file File.join(Dir.pwd, download.path)
+
+        filepath = File.join(Dir.pwd, download.path)
+        send_file filepath,
+          :filename => File.basename(filepath),
+          :disposition => 'attachment'
     else
         halt 501
     end
