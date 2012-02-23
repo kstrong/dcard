@@ -83,7 +83,7 @@ end
 
 get '/download/:code/:download_id' do
     halt 403 unless session[:code] == params[:code]
-    
+
     if ! codes.include? params[:code] 
         halt 404
     end
@@ -115,6 +115,8 @@ get '/download/:code/:download_id' do
 end
 
 get '/manage' do
+    @codes     = Code.all
+    @downloads = Download.all
     erb :admin
 end
 

@@ -1,6 +1,42 @@
 <section>
-  <h1>Codes</h1>
+  <h2>Codes</h2>
+  <ul>
+  <% @codes.each do |code| %>
+    <li><%= code.code %></li>
+  <% end %>
+  </ul>
 </section>
+<p>
+  <a class="btn">
+    <i class="icon-plus"></i>
+    Generate Code
+  </a>
+</p>
 <section>
-  <h1>Downloads</h1>
+  <div class="row">
+    <div class="span4">
+      <h2>Downloads</h2>
+    </div>
+    <div class="span2">
+      <a class="btn btn-small"><i class="icon-ok-circle"></i>Check all</a>
+    </div>
+    <div class="span2">
+      <a class="btn btn-small"><i class="icon-remove-circle"></i>Uncheck all</a>
+    </div>
+  </div>
+  <% @downloads.each do |download| %>
+  <div class="row">
+    <input class="pull-left" type="checkbox" />
+    <div class="span5"><%= download.title %></div>
+    <div class="span2">
+        <span><%= download.format %></span>
+    </div>
+    <div class="span2">
+      <a class="downLink" href="<%= url("download/#{session[:code]}/#{download.id}") %>">http</a> | <a href="#">torrent</a>
+    </div>
+    <div class="span2 center">
+      5
+    </div>
+  </div>
+  <% end %>
 </section>
