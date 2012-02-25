@@ -2,3 +2,4 @@ Thumbs.db
 sample/
 config.rb
 *.sublime-*
+*.db
