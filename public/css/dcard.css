@@ -1,6 +1,12 @@
 
 .center { text-align: center; }
+.clear { clear: both; }
 
 .download-heading { font-size: 130%; font-weight: bold; margin-bottom: 10px; }
 
 .download-container { margin: 10px 0; }
+
+.codes-outer { padding: 10px; }
+#codes { margin: 0 0 9px 9px; }
+#codes li { background-color: #C5C5C5; cursor: pointer; display: block; float: left; margin: 5px; padding: 2px; }
+#codes li.selected { border: 1px solid; border-radius: 5px; margin: 4px; }

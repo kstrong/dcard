@@ -1,13 +1,18 @@
+<div id="errMsg" class="row">
+</div>
 <section>
-  <h2>Codes</h2>
-  <ul>
-  <% @codes.each do |code| %>
-    <li><%= code.code %></li>
-  <% end %>
-  </ul>
+  <h2>Codes <small>click to edit</small></h2>
+  <div class="well codes-outer">
+    <ul id="codes">
+    <% @codes.each do |code| %>
+      <li data-id="<%= code.id %>"><%= code.code %></li>
+    <% end %>
+    </ul>
+    <div class="clear"></div>
+  </div>
 </section>
 <p>
-  <a class="btn">
+  <a id="genCode" class="btn">
     <i class="icon-plus"></i>
     Generate Code
   </a>
@@ -18,16 +23,18 @@
       <h2>Downloads</h2>
     </div>
     <div class="span2">
-      <a class="btn btn-small"><i class="icon-ok-circle"></i>Check all</a>
+      <a id="checkall" class="btn btn-small"><i class="icon-ok-circle"></i>Check all</a>
     </div>
     <div class="span2">
-      <a class="btn btn-small"><i class="icon-remove-circle"></i>Uncheck all</a>
+      <a id="uncheckall" class="btn btn-small"><i class="icon-remove-circle"></i>Uncheck all</a>
     </div>
   </div>
   <% @downloads.each do |download| %>
   <div class="row">
-    <input class="pull-left" type="checkbox" />
-    <div class="span5"><%= download.title %></div>
+    <div class="span1">
+      <input data-id="<%= download.id %>" class="dl-check pull-left" type="checkbox" />
+    </div>
+    <div class="span3"><%= download.title %></div>
     <div class="span2">
         <span><%= download.format %></span>
     </div>
@@ -35,8 +42,72 @@
       <a class="downLink" href="<%= url("download/#{session[:code]}/#{download.id}") %>">http</a> | <a href="#">torrent</a>
     </div>
     <div class="span2 center">
-      5
+      <input class="dlcount input-mini" type="text" value="5" />
     </div>
   </div>
   <% end %>
 </section>
+
+<% content_for :scripts do %>
+<script type="text/javascript">
+jQuery(function ($) {
+  
+  var code_downloads = { <%=
+    @codes.map { |code| code.id.to_s << ": " << code.downloads.all.map{|d| d.id}.to_json.to_s }.join(',') 
+  %>}; 
+  function setDownloads(code_id) {
+    $('.dl-check').attr('checked', false);
+
+    if (!code_downloads[code_id]) {
+      return;
+    }
+
+    $.each(code_downloads[code_id], function (idx, dl) {
+      $('.dl-check[data-id='+dl+']').attr('checked', 'checked');
+    }); 
+  }
+
+  var current_code_id = 0;
+  $('#codes li').live('click', function () {
+    var $this = $(this);
+    if ($this.hasClass('selected')) {
+      $this.removeClass('selected');
+      current_code_id = 0;
+    }
+    else {
+      $('#codes li.selected').removeClass('selected');
+      $this.addClass('selected');
+      current_code_id = $this.attr('data-id');
+    }
+    setDownloads(current_code_id);
+  });
+
+  $('#genCode').click(function () {
+    $.post('<%= url('codes') %>', function (response) {
+      console.log(response);
+      if (response.code) {
+        $('#codes').append($('<li>'+response.code+'</li>'));
+      }
+      else if (response.error) {
+        var err = '<div class="alert alert-error span5"><a class="close" data-dismiss="alert">&times;</a>';
+        err += response.error;
+        err += '</div>';
+
+        $('#errMsg').css('display', 'none').append($(err)).fadeIn();
+      }
+    }).error(function (err) {
+      console.log(err);
+    });
+  });
+
+  $('#checkall').click(function () {
+    $('.dl-check').attr('checked', 'checked');
+  });
+
+  $('#uncheckall').click(function () {
+    $('.dl-check').attr('checked', false);
+  });
+
+});
+</script>
+<% end %>

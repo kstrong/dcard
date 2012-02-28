@@ -1,7 +1,9 @@
 require 'rubygems'
 require 'sinatra'
+require 'sinatra/content_for'
 require 'sinatra/flash'
 require 'data_mapper'
+require 'json'
 require File.join(File.dirname(__FILE__), 'config')
 
 enable :sessions
@@ -12,7 +14,7 @@ class Code
     include DataMapper::Resource
 
     property :id,         Serial
-    property :code,       String
+    property :code,       String, :required => true, :unique => true
     property :created_at, DateTime
 
     has n, :downloads, :through => Resource
@@ -119,6 +121,22 @@ get '/manage' do
     @codes     = Code.all
     @downloads = Download.all
     erb :admin
+end
+
+# #
+# Codes - JSON API
+# #
+
+post '/codes' do
+    code = Code.new 
+    code.code = rand(36**8).to_s(36)
+
+    content_type :json
+    if code.save
+        code.to_json
+    else
+        { :error => code.errors.map{|e| e}.join("\n") }.to_json
+    end
 end
 
 not_found do
