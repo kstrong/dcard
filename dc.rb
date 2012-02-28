@@ -17,7 +17,7 @@ class Code
     property :code,       String, :required => true, :unique => true
     property :created_at, DateTime
 
-    has n, :downloads, :through => Resource
+    has n, :downloads, :through => :code_downloads
 end
 
 class Download
@@ -29,8 +29,17 @@ class Download
     property :format,  String
     property :storage, String
 
-    has n, :codes, :through => Resource
+    has n, :codes, :through => :code_downloads
     has n, :download_logs
+end
+
+class CodeDownload
+    include DataMapper::Resource
+
+    property :count, Integer, :default => 0
+
+    belongs_to :code, :key => true
+    belongs_to :download, :key => true
 end
 
 class DownloadLog
@@ -100,12 +109,12 @@ get '/download/:code/:download_id' do
 
     if download.storage == "local"
         DownloadLog.create(
-          :code => params[:code],
-          :download => download,
+          :code       => params[:code],
+          :download   => download,
           :ip_address => request.ip,
-          :email => session[:email],
-          :format => download.format,
-          :timestamp => Time.now
+          :email      => session[:email],
+          :format     => download.format,
+          :timestamp  => Time.now
         )
 
         filepath = File.join(Dir.pwd, download.path)
@@ -130,9 +139,16 @@ end
 post '/codes' do
     code = Code.new 
     code.code = rand(36**8).to_s(36)
-
+    
     content_type :json
     if code.save
+        params[:downloads].each do |dl_id, cnt|
+            CodeDownload.create(
+              :code_id     => code.id,
+              :download_id => dl_id,
+              :count       => cnt
+            )
+        end
         code.to_json
     else
         { :error => code.errors.map{|e| e}.join("\n") }.to_json

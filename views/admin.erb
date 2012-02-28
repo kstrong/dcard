@@ -42,7 +42,7 @@
       <a class="downLink" href="<%= url("download/#{session[:code]}/#{download.id}") %>">http</a> | <a href="#">torrent</a>
     </div>
     <div class="span2 center">
-      <input class="dlcount input-mini" type="text" value="5" />
+      <input data-id="<%= download.id %>" class="dl-count input-mini" type="text" value="5" />
     </div>
   </div>
   <% end %>
@@ -52,18 +52,23 @@
 <script type="text/javascript">
 jQuery(function ($) {
   
-  var code_downloads = { <%=
-    @codes.map { |code| code.id.to_s << ": " << code.downloads.all.map{|d| d.id}.to_json.to_s }.join(',') 
+  var code_downloads = { <%= 
+    @codes.map { |code| 
+      code.id.to_s << ": " << code.code_downloads.all.map{ |dc| 
+        { :id => dc.download_id, :count => dc.count } 
+      }.to_json.to_s }.join(',') 
   %>}; 
   function setDownloads(code_id) {
     $('.dl-check').attr('checked', false);
+    $('.dl-count').val(5);
 
     if (!code_downloads[code_id]) {
       return;
     }
 
     $.each(code_downloads[code_id], function (idx, dl) {
-      $('.dl-check[data-id='+dl+']').attr('checked', 'checked');
+      $('.dl-check[data-id='+dl.id+']').attr('checked', 'checked');
+      $('.dl-count[data-id='+dl.id+']').val(dl.count)
     }); 
   }
 
@@ -83,10 +88,22 @@ jQuery(function ($) {
   });
 
   $('#genCode').click(function () {
-    $.post('<%= url('codes') %>', function (response) {
+    var downloads = {};
+    $('.dl-check:checked').each(function () {
+      var thisid = $(this).attr('data-id');
+      var count = $('.dl-count[data-id='+thisid+']').val();
+      downloads[thisid] = count;
+    });
+
+    $.post('<%= url('codes') %>', { downloads: downloads }, function (response) {
       console.log(response);
       if (response.code) {
-        $('#codes').append($('<li>'+response.code+'</li>'));
+        $('#codes').append($('<li data-id="'+response.id+'">'+response.code+'</li>'));
+        var code_dls = [];
+        for (var dlid in downloads) {
+          code_dls.push({id: dlid, count: downloads[dlid]});
+        }
+        code_downloads[response.id] = code_dls;
       }
       else if (response.error) {
         var err = '<div class="alert alert-error span5"><a class="close" data-dismiss="alert">&times;</a>';
