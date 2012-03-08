@@ -141,17 +141,23 @@ end
 # #
 
 post '/codes' do
-    code = Code.new 
-    code.code = rand(36**8).to_s(36)
+    code = Code.new
+    if params[:codeword] 
+        code.code = params[:codeword]
+    else 
+        code.code = rand(36**8).to_s(36)
+    end
     
     content_type :json
     if code.save
-        params[:downloads].each do |dl_id, cnt|
-            CodeDownload.create(
-              :code_id     => code.id,
-              :download_id => dl_id,
-              :count       => cnt
-            )
+        if params[:downloads] 
+            params[:downloads].each do |dl_id, cnt|
+                CodeDownload.create(
+                  :code_id     => code.id,
+                  :download_id => dl_id,
+                  :count       => cnt
+                )
+            end
         end
         code.to_json
     else

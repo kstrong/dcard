@@ -11,12 +11,13 @@
     <div class="clear"></div>
   </div>
 </section>
-<p>
-  <a id="genCode" class="btn">
+<form class="form-inline">
+  <button id="genCode" class="btn">
     <i class="icon-plus"></i>
     Generate Code
-  </a>
-</p>
+  </button>
+  <input type="text" class="span2" id="codeword" placeholder="Code Word..." />
+</form>
 <section>
   <div class="row">
     <div class="span4">
@@ -97,7 +98,15 @@ jQuery(function ($) {
       downloads[thisid] = count;
     });
 
-    $.post('<%= url('codes') %>', { downloads: downloads }, function (response) {
+    var params = {
+      downloads: downloads
+    };
+
+    if ($('#codeword').val()) {
+      params.codeword = $('#codeword').val();
+    }
+
+    $.post('<%= url('codes') %>', params, function (response) {
       console.log(response);
       if (response.code) {
         $('#codes').append($('<li data-id="'+response.id+'">'+response.code+'</li>'));
@@ -117,6 +126,8 @@ jQuery(function ($) {
     }).error(function (err) {
       console.log(err);
     });
+
+    return false;
   });
 
   $('#checkall').click(function () {
