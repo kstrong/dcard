@@ -3,3 +3,4 @@ sample/
 config.rb
 *.sublime-*
 *.db
+Gemfile.lock

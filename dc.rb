@@ -82,23 +82,27 @@ post '/download' do
         end
         redirect to("/download/#{params['code']}")
     else
-        flash[:error] = "This code is invalid."
+        flash[:error] = "This code is either expired or invalid."
         redirect to('/download')
     end
 end
 
 get '/download/:code' do
-    redirect '/download' unless codes.include? params[:code]
-    @downloads = Code.first(:code => params[:code]).downloads
-    erb :download
+    code = Code.first(:code => params[:code])
+
+    if code.nil? redirect '/download'
+    else
+        @downloads = code.downloads
+        erb :download
+    end
 end
 
 get '/download/:code/:download_id' do
     halt 403 unless session[:code] == params[:code]
 
-    if ! codes.include? params[:code] 
-        halt 404
-    end
+    # if ! codes.include? params[:code] 
+    #     halt 404
+    # end
 
     download = Download.first(:id => params[:download_id], 
                               Download.codes.code => params[:code])
