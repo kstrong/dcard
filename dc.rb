@@ -130,6 +130,33 @@ get '/download/:code/:download_id' do
     end
 end
 
+post '/download/new' do
+    if ! params.has_key? 'title' or params[:title].length == 0
+        flash[:error] = "Title is required"
+        return redirect '/manage'
+    elsif ! params.has_key? 'download_file'
+        flash[:error] = "Please choose a file to upload"
+        return redirect '/manage'
+    end
+
+    tmpfile = params[:download_file][:tempfile]
+    filename = params[:download_file][:filename].gsub(/\s/, '_')
+    path = File.join(Dir.pwd, 'media', filename)
+
+    File.open(path, "wb") do |f| 
+        f.write tmpfile.read
+    end
+
+    Download.create(
+      :title   => params[:title],
+      :path    => File.join('/media', filename),
+      :format  => ".mp3",
+      :storage => "local"
+    )
+
+    redirect '/manage'
+end
+
 get '/manage' do
     @codes     = Code.all
     @downloads = Download.all

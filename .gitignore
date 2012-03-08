@@ -1,4 +1,5 @@
 Thumbs.db
+.DS_Store
 sample/
 config.rb
 *.sublime-*
