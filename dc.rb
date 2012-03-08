@@ -101,7 +101,7 @@ get '/download/:code/:download_id' do
     end
 
     download = Download.first(:id => params[:download_id], 
-                              :codes => { :code => params[:code] })
+                              Download.codes.code => params[:code])
     
     if ! download
         halt 404

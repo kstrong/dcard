@@ -54,10 +54,12 @@ jQuery(function ($) {
   
   var code_downloads = { <%= 
     @codes.map { |code| 
-      code.id.to_s << ": " << code.code_downloads.all.map{ |dc| 
+      code.id.to_s << ": " << code.code_downloads.all.map { |dc| 
         { :id => dc.download_id, :count => dc.count } 
-      }.to_json.to_s }.join(',') 
+      }.to_json.to_s 
+    }.join(',') 
   %>}; 
+
   function setDownloads(code_id) {
     $('.dl-check').attr('checked', false);
     $('.dl-count').val(5);
