@@ -33,7 +33,7 @@
       <a class="downLink" href="<%= url("download/#{session[:code]}/#{download.id}") %>">http</a> | <a href="#">torrent</a>
     </div>
     <div class="span2 center">
-      5
+      <%= download.code_downloads.first(:code => @code).count %>
     </div>
   </div>
   <% end %>

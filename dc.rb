@@ -59,7 +59,10 @@ DataMapper.finalize
 
 DataMapper.auto_upgrade!
 
-codes = ['secretsauce']
+helpers do
+    include Rack::Utils
+    alias_method :h, :escape_html
+end
 
 get '/' do
     redirect '/download'
@@ -75,7 +78,9 @@ post '/download' do
         redirect to('/download')
     end
 
-    if codes.include? params[:code] 
+    code = Code.first(:code => params[:code])
+
+    if ! code.nil?
         session[:code] = params[:code]
         if params[:email] 
             session[:email] = params[:email]
@@ -88,11 +93,12 @@ post '/download' do
 end
 
 get '/download/:code' do
-    code = Code.first(:code => params[:code])
+    @code = Code.first(:code => params[:code])
 
-    if code.nil? redirect '/download'
+    if @code.nil? 
+        redirect '/download'
     else
-        @downloads = code.downloads
+        @downloads = @code.downloads
         erb :download
     end
 end
@@ -125,6 +131,15 @@ get '/download/:code/:download_id' do
         send_file filepath,
           :filename => File.basename(filepath),
           :disposition => 'attachment'
+
+        # decrement count of downloads remaining
+        rel = download.code_downloads.first(:code => Code.first(params[:code]))
+        rel.count = rel.count - 1
+        if rel.count == 0 
+            rel.destroy
+        else
+            rel.save
+        end
     else
         halt 501
     end
