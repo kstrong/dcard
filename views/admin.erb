@@ -25,6 +25,10 @@
     Generate Code
   </button>
   <input type="text" class="span2" id="codeword" placeholder="Code Word..." />
+  <button id="saveCode" class="btn btn-success hide">
+    <i class="icon-ok-circle"></i>
+    Save Code
+  </button>
 </form>
 
 <section>
@@ -110,12 +114,19 @@ jQuery(function ($) {
     }); 
   }
 
+  $('.dl-check, .dl-count').change(function () {
+    if (current_code_id) {
+      $('#saveCode').fadeIn();
+    }
+  });
+
   var current_code_id = 0;
   $('#codes li').live('click', function () {
     var $this = $(this);
     if ($this.hasClass('selected')) {
       $this.removeClass('selected');
       current_code_id = 0;
+      $('#saveCode').fadeOut();
     }
     else {
       $('#codes li.selected').removeClass('selected');
@@ -125,7 +136,7 @@ jQuery(function ($) {
     setDownloads(current_code_id);
   });
 
-  $('#genCode').click(function () {
+  function saveDownloads() {
     var downloads = {};
     $('.dl-check:checked').each(function () {
       var thisid = $(this).attr('data-id');
@@ -133,6 +144,11 @@ jQuery(function ($) {
       downloads[thisid] = count;
     });
 
+    return downloads;
+  }
+
+  $('#genCode').click(function () {
+    var downloads = saveDownloads();
     var params = {
       downloads: downloads
     };
@@ -143,6 +159,7 @@ jQuery(function ($) {
 
     $.post('<%= url('codes') %>', params, function (response) {
       console.log(response);
+
       if (response.code) {
         $('#codes').append($('<li data-id="'+response.id+'">'+response.code+'</li>'));
         var code_dls = [];
@@ -152,14 +169,42 @@ jQuery(function ($) {
         code_downloads[response.id] = code_dls;
       }
       else if (response.error) {
-        var err = '<div class="alert alert-error span5"><a class="close" data-dismiss="alert">&times;</a>';
-        err += response.error;
-        err += '</div>';
-
-        $('#errMsg').css('display', 'none').append($(err)).fadeIn();
+        displayError(response.error);
       }
     }).error(function (err) {
       console.log(err);
+    });
+
+    return false;
+  });
+
+  $('#saveCode').click(function () {
+    var code_id   = $('#codes li.selected').attr('data-id');
+    var downloads = saveDownloads();
+
+    var params = {
+      downloads: downloads
+    };
+
+    $.ajax({
+      url: '<%= url('codes') %>/'+code_id, 
+      type: 'PUT',
+      dataType: 'json',
+      data: params,
+      success: function (response) {
+        console.log(response);
+
+        if (response.code) {
+          var code_dls = [];
+          for (var dlid in downloads) {
+            code_dls.push({id: dlid, count: downloads[dlid]});
+          }
+          code_downloads[response.id] = code_dls;
+        }
+        else if (response.error) {
+          displayError(response.error);
+        }
+      }
     });
 
     return false;
@@ -172,6 +217,14 @@ jQuery(function ($) {
   $('#uncheckall').click(function () {
     $('.dl-check').attr('checked', false);
   });
+
+  function displayError(errmsg) {
+    var err = '<div class="alert alert-error span5"><a class="close" data-dismiss="alert">&times;</a>';
+    err += errmsg;
+    err += '</div>';
+
+    $('#errMsg').css('display', 'none').append($(err)).fadeIn();
+  }
 
 });
 </script>

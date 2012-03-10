@@ -38,8 +38,10 @@
   </div>
   <% end %>
 </div>
+
+<% content_for :scripts do %>
 <script type="text/javascript">
-$(function () { 
+jQuery(function ($) { 
 	$('.downLink').click(function () {
 		var $cnt_div = $(this).parent().next();
 		var dlcount = parseInt($cnt_div.text());
@@ -48,3 +50,4 @@ $(function () {
 	});
 });
 </script>
+<% end %>

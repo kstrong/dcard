@@ -127,19 +127,19 @@ get '/download/:code/:download_id' do
           :timestamp  => Time.now
         )
 
-        filepath = File.join(Dir.pwd, download.path)
-        send_file filepath,
-          :filename => File.basename(filepath),
-          :disposition => 'attachment'
-
         # decrement count of downloads remaining
-        rel = download.code_downloads.first(:code => Code.first(params[:code]))
+        rel = download.code_downloads.first(:code => Code.first(:code => params[:code]))
         rel.count = rel.count - 1
         if rel.count == 0 
             rel.destroy
         else
             rel.save
         end
+
+        filepath = File.join(Dir.pwd, download.path)
+        send_file filepath,
+          :filename => File.basename(filepath),
+          :disposition => 'attachment'
     else
         halt 501
     end
@@ -205,6 +205,25 @@ post '/codes' do
     else
         { :error => code.errors.map{|e| e}.join("\n") }.to_json
     end
+end
+
+put '/codes/:id' do
+    code = Code.get(params[:id])
+
+    if code.nil?
+        return { :error => "Code #{params[:id]} not found" }.to_json
+    end
+
+    if params[:downloads] 
+        params[:downloads].each do |dl_id, cnt|
+            CodeDownload.create(
+              :code_id     => code.id,
+              :download_id => dl_id,
+              :count       => cnt
+            )
+        end
+    end
+    code.to_json
 end
 
 not_found do
