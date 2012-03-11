@@ -208,7 +208,6 @@ post '/codes' do
 end
 
 put '/codes/:id' do
-    puts params.inspect
     code = Code.get(params[:id])
 
     if code.nil?
