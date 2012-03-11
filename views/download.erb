@@ -32,6 +32,12 @@ jQuery(function ($) {
 		var dlcount = parseInt($cnt_div.text());
 		dlcount--;
 		$cnt_div.text(dlcount);
+
+    if (dlcount == 0) {
+      $cnt_div.parent().fadeOut('slow', function () {
+        $(this).remove();
+      });
+    }
 	});
 });
 </script>

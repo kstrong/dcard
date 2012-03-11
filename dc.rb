@@ -80,7 +80,7 @@ post '/download' do
 
     code = Code.first(:code => params[:code])
 
-    if ! code.nil?
+    if ! code.nil? && code.downloads.count > 0
         session[:code] = params[:code]
         if params[:email] 
             session[:email] = params[:email]
@@ -97,6 +97,9 @@ get '/download/:code' do
 
     if @code.nil? 
         redirect '/download'
+    elsif @code.downloads.count == 0
+        flash[:error] = "There are no more downloads available for this code"
+        redirect '/download'
     else
         @downloads = @code.downloads
         erb :download
@@ -105,10 +108,6 @@ end
 
 get '/download/:code/:download_id' do
     halt 403 unless session[:code] == params[:code]
-
-    # if ! codes.include? params[:code] 
-    #     halt 404
-    # end
 
     download = Download.first(:id => params[:download_id], 
                               Download.codes.code => params[:code])
@@ -173,8 +172,9 @@ post '/download/new' do
 end
 
 get '/manage' do
-    @codes     = Code.all
-    @downloads = Download.all
+    @codes        = Code.all
+    @downloads    = Download.all
+    @default_count = 1
     erb :admin
 end
 
@@ -208,6 +208,7 @@ post '/codes' do
 end
 
 put '/codes/:id' do
+    puts params.inspect
     code = Code.get(params[:id])
 
     if code.nil?
@@ -216,11 +217,15 @@ put '/codes/:id' do
 
     if params[:downloads] 
         params[:downloads].each do |dl_id, cnt|
-            CodeDownload.create(
-              :code_id     => code.id,
-              :download_id => dl_id,
-              :count       => cnt
-            )
+            if rel = CodeDownload.get(code.id, dl_id)
+                rel.update(:count => cnt)
+            else
+                CodeDownload.create(
+                  :code_id     => code.id,
+                  :download_id => dl_id,
+                  :count       => cnt
+                )
+            end
         end
     end
     code.to_json

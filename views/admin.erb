@@ -43,23 +43,25 @@
       <a id="uncheckall" class="btn btn-small"><i class="icon-remove-circle"></i>Uncheck all</a>
     </div>
   </div>
-  <% @downloads.each do |download| %>
-  <div class="row">
-    <div class="span1">
-      <input data-id="<%= download.id %>" class="dl-check pull-left" type="checkbox" />
+  <div class="well">
+    <% @downloads.each do |download| %>
+    <div class="row">
+      <div class="span1">
+        <input data-id="<%= download.id %>" class="dl-check pull-left" type="checkbox" />
+      </div>
+      <div class="span3"><%= download.title %></div>
+      <div class="span2">
+          <span><%= download.format %></span>
+      </div>
+      <div class="span2">
+        <a class="downLink" href="<%= url("download/#{session[:code]}/#{download.id}") %>">http</a> | <a href="#">torrent</a>
+      </div>
+      <div class="span2 center">
+        <input data-id="<%= download.id %>" class="dl-count input-mini" type="text" value="<%= @default_count %>" />
+      </div>
     </div>
-    <div class="span3"><%= download.title %></div>
-    <div class="span2">
-        <span><%= download.format %></span>
-    </div>
-    <div class="span2">
-      <a class="downLink" href="<%= url("download/#{session[:code]}/#{download.id}") %>">http</a> | <a href="#">torrent</a>
-    </div>
-    <div class="span2 center">
-      <input data-id="<%= download.id %>" class="dl-count input-mini" type="text" value="5" />
-    </div>
+    <% end %>
   </div>
-  <% end %>
 </section>
 
 <section>
@@ -102,7 +104,7 @@ jQuery(function ($) {
 
   function setDownloads(code_id) {
     $('.dl-check').attr('checked', false);
-    $('.dl-count').val(5);
+    $('.dl-count').val(<%= @default_count %>);
 
     if (!code_downloads[code_id]) {
       return;
