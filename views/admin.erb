@@ -47,9 +47,9 @@
     <% @downloads.each do |download| %>
     <div class="row">
       <div class="span1">
-        <input data-id="<%= download.id %>" class="dl-check pull-left" type="checkbox" />
+        <input data-id="<%= download.id %>" class="dl-check pull-left" type="checkbox" id="dl-check<%= download.id %>" />
       </div>
-      <div class="span3"><%= download.title %></div>
+      <div class="span3"><label for="dl-check<%= download.id %>"><%= download.title %></label></div>
       <div class="span2">
           <span><%= download.format %></span>
       </div>
@@ -202,6 +202,7 @@ jQuery(function ($) {
             code_dls.push({id: dlid, count: downloads[dlid]});
           }
           code_downloads[response.id] = code_dls;
+          $('#saveCode').fadeOut();
         }
         else if (response.error) {
           displayError(response.error);

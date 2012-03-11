@@ -214,8 +214,11 @@ put '/codes/:id' do
         return { :error => "Code #{params[:id]} not found" }.to_json
     end
 
+    ids_set = []
+
     if params[:downloads] 
         params[:downloads].each do |dl_id, cnt|
+            ids_set << dl_id.to_i
             if rel = CodeDownload.get(code.id, dl_id)
                 rel.update(:count => cnt)
             else
@@ -227,6 +230,15 @@ put '/codes/:id' do
             end
         end
     end
+
+    # delete relationship for downloads that have been unset
+    all_dls = CodeDownload.all(:code_id => code.id)
+    all_dls.each do |dl_link| 
+        if ! ids_set.include? dl_link.download_id
+            dl_link.destroy
+        end
+    end
+
     code.to_json
 end
 
