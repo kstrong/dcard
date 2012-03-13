@@ -83,6 +83,15 @@
           <input type="file" name="download_file" />
         </div>
       </div>
+      <div class="control-group">
+        <label class="control-label">Storage</label>
+          <div class="controls">
+            <select class="input-small" id="storage" name="storage">
+              <option value="local">Local</option>
+              <option value="s3">Amazon S3</option>
+            </select>
+          </div>
+      </div>
       <button class="btn btn-primary" type="submit">Upload</button>
     </form>
   </div>
