@@ -15,7 +15,8 @@
       </select>
     </div>
     <div class="span2">
-      <a class="downLink" href="<%= url("download/#{session[:code]}/#{download.id}") %>">http</a> | <a href="#">torrent</a>
+      <a class="downLink" href="<%= url("download/#{session[:code]}/#{download.id}") %>">http</a>
+      <% if download.storage == "s3" %> | <a href="<%= torrent_for download %>">torrent</a> <% end %>
     </div>
     <div class="span2 center">
       <%= download.code_downloads.first(:code => @code).count %>

@@ -68,6 +68,10 @@ AWS::S3::Base.establish_connection!(
 helpers do
     include Rack::Utils
     alias_method :h, :escape_html
+
+    def torrent_for download
+        AWS::S3::torrent_for download.path, settings.bucket
+    end
 end
 
 get '/' do
@@ -122,29 +126,33 @@ get '/download/:code/:download_id' do
         halt 404
     end
 
+    DownloadLog.create(
+      :code       => params[:code],
+      :download   => download,
+      :ip_address => request.ip,
+      :email      => session[:email],
+      :format     => download.format,
+      :timestamp  => Time.now
+    )
+
+    # decrement count of downloads remaining
+    rel = download.code_downloads.first(:code => Code.first(:code => params[:code]))
+    rel.count = rel.count - 1
+    if rel.count == 0 
+        rel.destroy
+    else
+        rel.save
+    end
+
     if download.storage == "local"
-        DownloadLog.create(
-          :code       => params[:code],
-          :download   => download,
-          :ip_address => request.ip,
-          :email      => session[:email],
-          :format     => download.format,
-          :timestamp  => Time.now
-        )
-
-        # decrement count of downloads remaining
-        rel = download.code_downloads.first(:code => Code.first(:code => params[:code]))
-        rel.count = rel.count - 1
-        if rel.count == 0 
-            rel.destroy
-        else
-            rel.save
-        end
-
         filepath = File.join(Dir.pwd, download.path)
         send_file filepath,
           :filename => File.basename(filepath),
           :disposition => 'attachment'
+
+    elsif download.storage == "s3"
+        redirect AWS::S3::url_for download.path, settings.bucket
+        
     else
         halt 501
     end
