@@ -162,26 +162,56 @@ post '/download/new' do
     tmpfile = params[:download_file][:tempfile]
     filename = params[:download_file][:filename].gsub(/\s/, '_')
 
+    download = Download.create(
+      :title   => params[:title],
+      :path    => filename,
+      :format  => ".mp3",
+      :storage => params[:storage]
+    )
+
     if params[:storage] == "local"
-        path = File.join(Dir.pwd, 'media', filename)
+        directory = File.join(Dir.pwd, 'media', download.id.to_s)
+        Dir::mkdir(directory) unless File.exists?(directory)
+
+        path = File.join(directory, filename)
 
         File.open(path, "wb") do |f| 
             f.write tmpfile.read
         end
 
-        dlpath = File.join('/media', filename)
+        download.path = File.join('/media', download.id.to_s, filename)
 
     elsif params[:storage] == "s3"
+        s3file = "/#{download.id.to_s}/#{filename}" 
+
+        AWS::S3::S3Object.store s3file, tmpfile.read, settings.bucket
+
+        download.path = s3file
     end
 
-    Download.create(
-      :title   => params[:title],
-      :path    => dlpath,
-      :format  => ".mp3",
-      :storage => params[:storage]
-    )
+    download.save
 
     redirect '/manage'
+end
+
+delete '/download/:id' do
+    download = Download.get(params[:id])
+
+    if download.storage == "local"
+        filepath = File.join(Dir.pwd, download.path)
+        File.delete filepath
+
+    elsif download.storage == "s3"
+        AWS::S3::S3Object.delete download.path, settings.bucket
+    end
+
+    CodeDownload.all(:download_id => download.id).destroy
+
+    if download.destroy
+        { :status => 'ok' }.to_json
+    else
+        { :error => download.errors.map{|e| e}.join("\n") }.to_json
+    end
 end
 
 get '/manage' do

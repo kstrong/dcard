@@ -49,7 +49,7 @@
       <div class="span1">
         <input data-id="<%= download.id %>" class="dl-check pull-left" type="checkbox" id="dl-check<%= download.id %>" />
       </div>
-      <div class="span3"><label for="dl-check<%= download.id %>"><%= download.title %></label></div>
+      <div class="span3 dl-title"><label for="dl-check<%= download.id %>"><%= download.title %></label></div>
       <div class="span2">
           <span><%= download.format %></span>
       </div>
@@ -58,6 +58,9 @@
       </div>
       <div class="span2 center">
         <input data-id="<%= download.id %>" class="dl-count input-mini" type="text" value="<%= @default_count %>" />
+      </div>
+      <div class="span1">
+        <i class="icon-remove dl-delete" data-id="<%= download.id %>"></i>
       </div>
     </div>
     <% end %>
@@ -220,6 +223,31 @@ jQuery(function ($) {
     });
 
     return false;
+  });
+
+  $('.dl-delete').live('click', function () {
+    var dl_id = $(this).attr('data-id');
+    var title = $(this).parent().siblings('.dl-title').text();
+    var dl_row = $(this).parent().parent(); 
+
+    if (confirm('Are you sure you want to delete "' + title + '"?')) {
+      $.ajax({
+        url: '<%= url('download') %>/'+dl_id, 
+        type: 'DELETE',
+        dataType: 'json',
+        success: function (response) {
+          console.log(response);
+
+          if (response.error) {
+            displayError(response.error);
+          }
+
+          dl_row.fadeOut('slow', function () {
+            $(this).remove();
+          });
+        }
+      });
+    }
   });
 
   $('#checkall').click(function () {
