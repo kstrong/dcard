@@ -69,8 +69,12 @@ helpers do
     include Rack::Utils
     alias_method :h, :escape_html
 
-    def torrent_for(download)
-        AWS::S3::S3Object.torrent_for download.path, settings.bucket
+    def download_url_for(download)
+        url("download/#{session[:code]}/#{download.id}") 
+    end
+
+    def torrent_url_for(download)
+        url("download/#{session[:code]}/#{download.id}/torrent") 
     end
 end
 
@@ -114,6 +118,20 @@ get '/download/:code' do
         @downloads = @code.downloads
         erb :download
     end
+end
+
+get '/download/:code/:download_id/torrent' do
+    halt 403 unless session[:code] == params[:code]
+
+    download = Download.first(:id => params[:download_id], 
+                              Download.codes.code => params[:code])
+    
+    if ! download || download.storage != "s3"
+        halt 404
+    end
+
+    attachment "#{download.title}.torrent"
+    AWS::S3::S3Object.torrent_for download.path, settings.bucket
 end
 
 get '/download/:code/:download_id' do
