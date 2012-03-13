@@ -4,6 +4,7 @@ require 'sinatra/content_for'
 require 'sinatra/flash'
 require 'data_mapper'
 require 'json'
+require 'aws/s3'
 require File.join(File.dirname(__FILE__), 'config')
 
 enable :sessions
@@ -58,6 +59,11 @@ end
 DataMapper.finalize
 
 DataMapper.auto_upgrade!
+
+AWS::S3::Base.establish_connection!(
+    :access_key_id     => settings.aws_access,
+    :secret_access_key => settings.aws_secret
+)
 
 helpers do
     include Rack::Utils
@@ -155,17 +161,24 @@ post '/download/new' do
 
     tmpfile = params[:download_file][:tempfile]
     filename = params[:download_file][:filename].gsub(/\s/, '_')
-    path = File.join(Dir.pwd, 'media', filename)
 
-    File.open(path, "wb") do |f| 
-        f.write tmpfile.read
+    if params[:storage] == "local"
+        path = File.join(Dir.pwd, 'media', filename)
+
+        File.open(path, "wb") do |f| 
+            f.write tmpfile.read
+        end
+
+        dlpath = File.join('/media', filename)
+
+    elsif params[:storage] == "s3"
     end
 
     Download.create(
       :title   => params[:title],
-      :path    => File.join('/media', filename),
+      :path    => dlpath,
       :format  => ".mp3",
-      :storage => "local"
+      :storage => params[:storage]
     )
 
     redirect '/manage'
