@@ -69,8 +69,8 @@ helpers do
     include Rack::Utils
     alias_method :h, :escape_html
 
-    def torrent_for download
-        AWS::S3::torrent_for download.path, settings.bucket
+    def torrent_for(download)
+        AWS::S3::S3Object.torrent_for download.path, settings.bucket
     end
 end
 
@@ -151,8 +151,8 @@ get '/download/:code/:download_id' do
           :disposition => 'attachment'
 
     elsif download.storage == "s3"
-        redirect AWS::S3::url_for download.path, settings.bucket
-        
+        redirect AWS::S3::S3Object.url_for download.path, settings.bucket
+
     else
         halt 501
     end
