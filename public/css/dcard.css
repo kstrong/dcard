@@ -2,6 +2,8 @@
 .center { text-align: center; }
 .clear { clear: both; }
 
+.header-row { margin-bottom: 10px; }
+
 .download-heading { font-size: 130%; font-weight: bold; margin-bottom: 10px; }
 
 .download-container { margin: 10px 0; }

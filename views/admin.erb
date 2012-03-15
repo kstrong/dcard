@@ -44,6 +44,14 @@
     </div>
   </div>
   <div class="well">
+    <div class="row header-row">
+      <div class="span1"><h4>Authorize?</h4></div>
+      <div class="span3 dl-title"><h4>Title</h4></div>
+      <div class="span2"><h4>Format</h4></div>
+      <div class="span2"><h4>Storage Type</h4></div>
+      <div class="span2 center"><h4>Count</h4></div>
+      <div class="span1"><h4>Delete?</h4></div> 
+    </div>
     <% @downloads.each do |download| %>
     <div class="row">
       <div class="span1">
@@ -54,7 +62,7 @@
           <span><%= download.format %></span>
       </div>
       <div class="span2">
-        <a class="downLink" href="<%= url("download/#{session[:code]}/#{download.id}") %>">http</a> | <a href="#">torrent</a>
+        <span><%= download.storage %></span>
       </div>
       <div class="span2 center">
         <input data-id="<%= download.id %>" class="dl-count input-mini" type="text" value="<%= @default_count %>" />
