@@ -251,10 +251,10 @@ end
 # Codes - JSON API
 # #
 
-post '/codes' do
+def make_code(downloads, codeword)
     code = Code.new
-    if params[:codeword] 
-        code.code = params[:codeword]
+    if codeword
+        code.code = codeword
     else 
         codeword = rand(36**8).to_s(36)
 
@@ -269,21 +269,38 @@ post '/codes' do
         code.code = codeword
     end
     
-    content_type :json
     if code.save
-        if params[:downloads] 
-            params[:downloads].each do |dl_id, cnt|
-                CodeDownload.create(
-                  :code_id     => code.id,
-                  :download_id => dl_id,
-                  :count       => cnt
-                )
-            end
-        end
-        code.to_json
+        downloads.each { |dl_id, cnt|
+            CodeDownload.create(
+              :code_id     => code.id,
+              :download_id => dl_id,
+              :count       => cnt
+            )
+        } if downloads
+
+        code
     else
-        { :error => code.errors.map{|e| e}.join("\n") }.to_json
+        { :error => code.errors.map{|e| e}.join("\n") }
     end
+end
+
+post '/codes' do
+    params[:count] = params[:count].to_i || 1
+
+    content_type :json
+
+    codes = []
+
+    params[:count].times do 
+        result = make_code(params[:downloads], params[:codeword])
+        if result.instance_of? Code
+            codes << result
+        else
+            return result.to_json
+        end
+    end
+
+    { :status => "ok", :codes => codes }.to_json
 end
 
 put '/codes/:id' do

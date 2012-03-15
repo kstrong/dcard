@@ -20,11 +20,14 @@
 </section>
 
 <form class="form-inline">
+  Generate
+  <input type="text" class="span1" id="codecount" value="1" />
+  Code(s) that start with
+  <input type="text" class="span2" id="codeword" placeholder="Code Word (optional)..." />
   <button id="genCode" class="btn">
     <i class="icon-plus"></i>
-    Generate Code
+    Go!
   </button>
-  <input type="text" class="span2" id="codeword" placeholder="Code Word..." />
   <button id="saveCode" class="btn btn-success hide">
     <i class="icon-ok-circle"></i>
     Save Code
@@ -179,16 +182,22 @@ jQuery(function ($) {
       params.codeword = $('#codeword').val();
     }
 
+    var count = $('#codecount').val();
+    if (!count) count = 1;
+    params.count = count;
+
     $.post('<%= url('codes') %>', params, function (response) {
       console.log(response);
 
-      if (response.code) {
-        $('#codes').append($('<li data-id="'+response.id+'">'+response.code+'</li>'));
-        var code_dls = [];
-        for (var dlid in downloads) {
-          code_dls.push({id: dlid, count: downloads[dlid]});
-        }
-        code_downloads[response.id] = code_dls;
+      if (response.codes) {
+        $.each(response.codes, function (idx, code) { 
+          $('#codes').append($('<li data-id="'+code.id+'">'+code.code+'</li>'));
+          var code_dls = [];
+          for (var dlid in downloads) {
+            code_dls.push({id: dlid, count: downloads[dlid]});
+          }
+          code_downloads[code.id] = code_dls;
+        }); 
       }
       else if (response.error) {
         displayError(response.error);
