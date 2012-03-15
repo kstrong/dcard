@@ -256,7 +256,17 @@ post '/codes' do
     if params[:codeword] 
         code.code = params[:codeword]
     else 
-        code.code = rand(36**8).to_s(36)
+        codeword = rand(36**8).to_s(36)
+
+        # sometimes the function generates collisons 
+        # so keep regenerating until we get one that isn't used
+        attempts = 0
+        until Code.first(:code => codeword).nil? || attempts > 10
+            codeword = rand(36**8).to_s(36)
+            attempts += 1
+        end
+
+        code.code = codeword
     end
     
     content_type :json
