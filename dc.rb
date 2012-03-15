@@ -191,7 +191,7 @@ post '/download/new' do
     download = Download.create(
       :title   => params[:title],
       :path    => filename,
-      :format  => File.extname filename,
+      :format  => File.extname(filename),
       :storage => params[:storage]
     )
 
