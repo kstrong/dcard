@@ -253,7 +253,7 @@ end
 
 def make_code(downloads, codeword)
     code = Code.new
-    if codeword
+    if codeword && codeword.length > 0
         code.code = codeword
     else 
         codeword = rand(36**8).to_s(36)
@@ -291,16 +291,33 @@ post '/codes' do
 
     codes = []
 
+    baseword = params[:codeword] if params.has_key? 'codeword'
+
+    counter = 1
+    errors = nil
     params[:count].times do 
-        result = make_code(params[:downloads], params[:codeword])
+        if baseword
+            codeword = "#{baseword}#{counter}"
+        else 
+            codeword = ""
+        end 
+
+        result = make_code(params[:downloads], codeword)
         if result.instance_of? Code
             codes << result
         else
-            return result.to_json
+            errors = result
+            break
         end
+
+        counter += 1
     end
 
-    { :status => "ok", :codes => codes }.to_json
+    if errors
+        errors.to_json
+    else
+        { :status => "ok", :codes => codes }.to_json
+    end
 end
 
 put '/codes/:id' do
