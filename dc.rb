@@ -285,7 +285,8 @@ def make_code(downloads, codeword)
 end
 
 post '/codes' do
-    params[:count] = params[:count].to_i || 1
+    params[:count] = params[:count].to_i
+    params[:count] = 1 if params[:count].nil? or params[:count] == 0
 
     content_type :json
 
