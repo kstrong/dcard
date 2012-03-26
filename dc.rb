@@ -147,13 +147,6 @@ def read_tracks(download_path, download)
             zip_file.get_input_stream(entry) do |io| 
                 StringIO.open(io.read) do |sio|
                     Mp3Info.open(sio) do |mp3|
-                        puts mp3.tag.tracknum 
-                        puts '. ' 
-                        puts mp3.tag.artist 
-                        puts ' - ' 
-                        puts mp3.tag.album 
-                        puts ' - ' 
-                        puts mp3.tag.title 
                         length = mp3.length
                         lmin = (length / 60.0).to_i
                         lsec = length.to_i % 60
@@ -162,15 +155,16 @@ def read_tracks(download_path, download)
                         else
                             lsec = lsec.to_s
                         end
+                        length = lmin.to_s << ':' << lsec 
                         fmt_length = ' (' << lmin.to_s << ':' << lsec << ')'
-                        puts fmt_length
+                        puts "#{mp3.tag.tracknum}. #{mp3.tag.artist} - #{mp3.tag.album} - #{mp3.tag.title} #{fmt_length}"
 
                         download.tracks.create(
                           :tracknum => mp3.tag.tracknum,
                           :artist   => mp3.tag.artist,
                           :album    => mp3.tag.album,
                           :title    => mp3.tag.title,
-                          :length   => fmt_length,
+                          :length   => length,
                           :preview  => ""
                         )
                     end
