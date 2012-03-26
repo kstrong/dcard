@@ -27,6 +27,7 @@ class Download
 
     has n, :codes, :through => :code_downloads
     has n, :download_logs
+    has n, :tracks
 end
 
 class CodeDownload
@@ -36,6 +37,21 @@ class CodeDownload
 
     belongs_to :code, :key => true
     belongs_to :download, :key => true
+end
+
+class Track
+	include DataMapper::Resource
+
+	property :id, Serial
+
+	belongs_to :download, :key => true
+
+	property :tracknum, Integer
+	property :artist,   String
+	property :album,    String
+	property :title,    String
+	property :length,   String
+	property :preview,  String
 end
 
 class DownloadLog

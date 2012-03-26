@@ -5,7 +5,7 @@ require 'sinatra/flash'
 require 'data_mapper'
 require 'json'
 require 'aws/s3'
-require 'csv'
+#require 'csv'
 require File.join(File.dirname(__FILE__), 'config')
 
 enable :sessions
@@ -48,9 +48,17 @@ post '/download' do
 
     if ! code.nil? && code.downloads.count > 0
         session[:code] = params[:code]
+        
         if params[:email] 
             session[:email] = params[:email]
         end
+
+        if params[:contact]
+            session[:contact] = 1
+        else
+            session[:contact] = 0
+        end
+
         redirect to("/download/#{params['code']}")
     else
         flash[:error] = "This code is either expired or invalid."
@@ -101,6 +109,7 @@ get '/download/:code/:download_id' do
       :download   => download,
       :ip_address => request.ip,
       :email      => session[:email],
+      :contact    => session[:contact],
       :format     => download.format,
       :timestamp  => Time.now
     )
