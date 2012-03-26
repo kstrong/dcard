@@ -6,6 +6,8 @@ require 'data_mapper'
 require 'json'
 require 'aws/s3'
 #require 'csv'
+require 'zip/zip'
+require 'mp3info'
 require File.join(File.dirname(__FILE__), 'config')
 
 enable :sessions
@@ -137,6 +139,47 @@ get '/download/:code/:download_id' do
     end
 end
 
+def read_tracks(download_path, download)
+    Zip::ZipFile.open(download_path) do |zip_file|
+        zip_file.each do |entry|
+            next if File.extname(entry.name) != ".mp3"
+
+            zip_file.get_input_stream(entry) do |io| 
+                StringIO.open(io.read) do |sio|
+                    Mp3Info.open(sio) do |mp3|
+                        puts mp3.tag.tracknum 
+                        puts '. ' 
+                        puts mp3.tag.artist 
+                        puts ' - ' 
+                        puts mp3.tag.album 
+                        puts ' - ' 
+                        puts mp3.tag.title 
+                        length = mp3.length
+                        lmin = (length / 60.0).to_i
+                        lsec = length.to_i % 60
+                        if lsec < 10
+                            lsec = '0' << lsec.to_s
+                        else
+                            lsec = lsec.to_s
+                        end
+                        fmt_length = ' (' << lmin.to_s << ':' << lsec << ')'
+                        puts fmt_length
+
+                        download.tracks.create(
+                          :tracknum => mp3.tag.tracknum,
+                          :artist   => mp3.tag.artist,
+                          :album    => mp3.tag.album,
+                          :title    => mp3.tag.title,
+                          :length   => fmt_length,
+                          :preview  => ""
+                        )
+                    end
+                end
+            end
+        end
+    end
+end
+
 post '/download/new' do
     if ! params.has_key? 'title' or params[:title].length == 0
         flash[:error] = "Title is required"
@@ -167,6 +210,11 @@ post '/download/new' do
         end
 
         download.path = File.join('/media', download.id.to_s, filename)
+        download.save
+
+        if download.format == ".zip"
+            read_tracks(path, download)
+        end
 
     elsif params[:storage] == "s3"
         s3file = "/#{download.id.to_s}/#{filename}" 
@@ -174,9 +222,8 @@ post '/download/new' do
         AWS::S3::S3Object.store s3file, tmpfile.read, settings.bucket
 
         download.path = s3file
+        download.save
     end
-
-    download.save
 
     redirect '/manage'
 end
@@ -186,13 +233,14 @@ delete '/download/:id' do
 
     if download.storage == "local"
         filepath = File.join(Dir.pwd, download.path)
-        File.delete filepath
+        File.delete filepath if File.exists? filepath
 
     elsif download.storage == "s3"
         AWS::S3::S3Object.delete download.path, settings.bucket
     end
 
     CodeDownload.all(:download_id => download.id).destroy
+    Track.all(:download_id => download.id).destroy
 
     if download.destroy
         { :status => 'ok' }.to_json
