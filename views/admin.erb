@@ -8,7 +8,17 @@
 </div>
 
 <section>
-  <h2>Codes <small>click to edit</small></h2>
+  <div class="row">
+    <div class="span3">
+      <h2>Codes <small>click to edit</small></h2>
+    </div>
+    <div class="span2 export">
+      <a href="<%= url('codes/csv') %>" class="btn">
+        <i class="icon-share-alt"></i>
+        export .csv
+      </a>
+    </div>
+  </div>
   <div class="well codes-outer">
     <ul id="codes">
     <% @codes.each do |code| %>

@@ -5,6 +5,7 @@ require 'sinatra/flash'
 require 'data_mapper'
 require 'json'
 require 'aws/s3'
+require 'csv'
 require File.join(File.dirname(__FILE__), 'config')
 
 enable :sessions
@@ -305,6 +306,19 @@ put '/codes/:id' do
     end
 
     code.to_json
+end
+
+get '/codes/csv' do
+    codes = Code.all
+
+    csv_data = CSV.generate do |csv|
+        codes.each do |code|
+            csv << [code.code]
+        end
+    end
+
+    attachment "download_codes.csv"
+    csv_data
 end
 
 not_found do
