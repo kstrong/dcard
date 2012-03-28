@@ -5,3 +5,4 @@ config.rb
 *.sublime-*
 *.sqlite
 Gemfile.lock
+*.bak

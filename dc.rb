@@ -69,7 +69,7 @@ post '/download' do
 end
 
 get '/download/:code' do
-    @code = Code.first(:code => params[:code])
+    @code = Code.first(:code => params[:code].downcase)
 
     if @code.nil? 
         redirect '/download'
@@ -364,7 +364,7 @@ get '/codes/csv' do
 
     csv_data = CSV.generate do |csv|
         codes.each do |code|
-            csv << [code.code]
+            csv << [code.code.upcase]
         end
     end
 
@@ -373,5 +373,5 @@ get '/codes/csv' do
 end
 
 not_found do
-    halt 404, 'not found'
+    halt 404, '<h1>Not Found</h1>'
 end
