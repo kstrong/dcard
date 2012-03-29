@@ -33,7 +33,7 @@ helpers do
 end
 
 get '/' do
-    redirect '/download'
+    erb :home, :layout => false
 end
 
 get '/download' do

@@ -6,3 +6,4 @@ config.rb
 *.sqlite
 Gemfile.lock
 *.bak
+tmp/
