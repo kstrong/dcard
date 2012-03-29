@@ -44,6 +44,17 @@
   </button>
 </form>
 
+<form id="importcsv" action="<%= url('codes/csv') %>" method="post" class="form-inline" enctype="multipart/form-data">
+  <button class="btn">
+    <i class="icon-arrow-up"></i>
+    import .csv
+  </button>
+  <input type="file" name="csv_file" />
+  <div class="row">
+    <div id="csvuploadmsg" class="span4 alert-error"></div>
+  </div>
+</form>
+
 <section>
   <div class="row">
     <div class="span4">
@@ -250,6 +261,21 @@ jQuery(function ($) {
     });
 
     return false;
+  });
+
+  $('#importcsv').submit(function () {
+    var downloads = saveDownloads();
+
+    var $infile = $('input[name=csv_file]');
+    if (! $infile.val()) {
+      $('#csvuploadmsg').text('Please choose a .csv file to import');
+      $infile.parent().parent().addClass('error');
+      return false;
+    }
+
+    for (var id in downloads) {
+      $(this).append('<input type="hidden" name="downloads[' + id + ']" value="' + downloads[id] + '" />');
+    }
   });
 
   $('.dl-delete').live('click', function () {

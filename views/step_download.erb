@@ -12,7 +12,7 @@
   <div class="album"> <img src="<%= url(download.artwork) %>"> <a href="<%= download_url_for(download) %>" class="download">Download</a> </div>
   <% 
   tracks = download.tracks.all(:order => [ :tracknum.asc ])
-  if tracks %>
+  if tracks.count > 0 %>
   <div class="tracks">
     <h2><%= tracks.first.album %></h2>
     <h3><%= tracks.first.artist %></h3>

@@ -46,10 +46,11 @@ post '/download' do
         redirect to('/download')
     end
 
-    code = Code.first(:code => params[:code])
+    codeword = params[:code].downcase
+    code = Code.first(:code => codeword)
 
     if ! code.nil? && code.downloads.count > 0
-        session[:code] = params[:code]
+        session[:code] = codeword
         
         if params[:email] 
             session[:email] = params[:email]
@@ -61,7 +62,7 @@ post '/download' do
             session[:contact] = 0
         end
 
-        redirect to("/download/#{params['code']}")
+        redirect to("/download/#{codeword}")
     else
         flash[:error] = "This code is either expired or invalid."
         redirect to('/download')
@@ -378,6 +379,18 @@ get '/codes/csv' do
 
     attachment "download_codes.csv"
     csv_data
+end
+
+post '/codes/csv' do
+    puts params.inspect
+
+    CSV.parse(params[:csv_file][:tempfile]) do |row|
+        code = row[0]
+        code = code.downcase
+        make_code(params[:downloads], code)
+    end
+
+    redirect '/manage'
 end
 
 not_found do
