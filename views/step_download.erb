@@ -14,8 +14,8 @@
   tracks = download.tracks.all(:order => [ :tracknum.asc ])
   if tracks %>
   <div class="tracks">
-    <h2><%= tracks.first.artist %></h2>
-    <h3><%= tracks.first.album %></h3>
+    <h2><%= tracks.first.album %></h2>
+    <h3><%= tracks.first.artist %></h3>
     <ol>
       <% tracks.each do |track| %>
       <li><%= track.title %></li>
