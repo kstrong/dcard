@@ -1,0 +1,116 @@
+
+* { margin: 0; padding: 0; }
+
+a, a img { border: none; }
+
+body {
+	background: #222;
+	font: normal 15px/23px Helvetica, Arial, sans-serif;
+	color: #aaa;
+}
+
+.clear { clear: both; }
+
+.rule {
+	border-top: #ccc dotted 1px;
+	margin-bottom: 50px;
+}
+
+.center { text-align: center; }
+
+.logo { margin: 50px 0; }
+
+.top {
+	background: #444;
+	padding: 9px 0 5px;
+	border-bottom: #555 solid 1px;
+}
+
+.top p {
+	width: 800px;
+	margin: 0 auto;
+	-moz-text-shadow: 1px 1px 2px #000;
+	-webkit-text-shadow: 1px 1px 2px #000;
+	text-shadow: 1px 1px 2px #000;
+}
+
+.white { color: #fff; }
+
+.wrapper {
+	width: 800px;
+	margin: 0 auto;
+}
+
+.album {
+	float: left;
+	width: 250px;
+}
+
+.album img { display: block; }
+
+.tracks {
+	float: right;
+	width: 500px;
+}
+
+.download {
+	display: block;
+	background: #9fa055;
+	margin: 20px 0 50px;
+	padding: 20px 0;
+	border: #d2d36d solid 1px;
+	font-size: 20px;
+	font-weight: bold;
+	color: #fff;
+	text-decoration: none;
+	text-transform: uppercase;
+	-moz-text-shadow: 1px 1px 2px #000;
+	-webkit-text-shadow: 1px 1px 2px #000;
+	text-shadow: 1px 1px 2px #000;
+	text-align: center;
+}
+
+.download:hover { background: #b8b958; }
+
+h1, h2, h3, .intro {
+	font-weight: bold;
+	text-transform: uppercase;
+	-moz-text-shadow: 1px 1px 2px #000;
+	-webkit-text-shadow: 1px 1px 2px #000;
+	text-shadow: 1px 1px 2px #000;
+}
+
+h1 {
+	color: #fff;
+	font-size: 50px;
+	line-height: 50px;
+	padding: 40px 0 20px;
+}
+
+h2 {
+	color: #aaa;
+	font-size: 30px;
+	margin-bottom: 3px;
+	line-height: 30px;
+}
+
+h3 {
+	color: #fff;
+	margin-bottom: 20px;
+	font-size: 18px;
+}
+
+ol { margin: 0 0 0 25px; }
+
+.intro {
+	color: #990;
+	font-size: 30px;
+	margin-bottom: 10px;
+	line-height: 30px;
+}
+
+.social:hover { border-color: #fff; }
+
+.fb { border: #7093c3 solid 1px; margin-right: 20px; }
+
+.rn { border: #5f5f5f solid 1px; }

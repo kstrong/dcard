@@ -37,7 +37,7 @@ get '/' do
 end
 
 get '/download' do
-    erb :access
+    erb :step_access, :layout => :download_layout
 end
 
 post '/download' do
@@ -78,7 +78,7 @@ get '/download/:code' do
         redirect '/download'
     else
         @downloads = @code.downloads
-        erb :download
+        erb :step_download, :layout => :download_layout
     end
 end
 
@@ -255,7 +255,7 @@ get '/manage' do
     @codes        = Code.all
     @downloads    = Download.all
     @default_count = 1
-    erb :admin
+    erb :admin, :layout => :boot_layout
 end
 
 # #

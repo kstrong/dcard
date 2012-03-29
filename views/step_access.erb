@@ -1,0 +1,15 @@
+<% content_for :styles do %>
+<link href="<%= url('css/forms-buttons-alerts.css') %>" rel="stylesheet" type="text/css" />
+<% end %>
+<% content_for :scripts do %>
+<script type="text/javascript" src="<%= url('js/bootstrap-alert.js') %>"></script>
+<% end %>
+
+<div class="header">
+<h1>Step 1</h1>
+<p class="intro">Enter your access code and email</p>
+</div>
+<div class="clear rule"></div>
+<div class="content"> 
+	<%= erb :access %>
+</div>

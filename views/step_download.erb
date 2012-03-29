@@ -1,0 +1,28 @@
+<div class="header">
+  <h1>Step 2</h1>
+  <p class="intro">Click the download links below to<br>
+    download the albums</p>
+</div>
+<div class="clear rule"></div>
+<div class="content">
+  <% @downloads.each do |download| %>
+  <% if download != @downloads.first %>
+  <div class="clear rule"></div>
+  <% end %>
+  <div class="album"> <img src="<%= url(download.artwork) %>"> <a href="<%= download_url_for(download) %>" class="download">Download</a> </div>
+  <% 
+  tracks = download.tracks.all(:order => [ :tracknum.asc ])
+  if tracks %>
+  <div class="tracks">
+    <h2><%= tracks.first.artist %></h2>
+    <h3><%= tracks.first.album %></h3>
+    <ol>
+      <% tracks.each do |track| %>
+      <li><%= track.title %></li>
+      <% end %>
+    </ol>
+  </div>
+  <% end %>
+  <% end %>
+</div>
+<div class="clear"></div>
