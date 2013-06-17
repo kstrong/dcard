@@ -1,8 +1,6 @@
 require 'rubygems'
 require 'data_mapper'
 
-DataMapper.setup :default, settings.db
-
 class Code
     include DataMapper::Resource
 
@@ -21,7 +19,7 @@ class Download
     property :artwork,     String
     property :description, String
     
-    property :path,        String
+    property :path,        String, :length => 255
     property :format,      String
     property :storage,     String
 
