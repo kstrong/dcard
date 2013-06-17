@@ -261,6 +261,7 @@ module DownloadCards
             if download.storage == "local"
                 filepath = File.join(Dir.pwd, download.path)
                 File.delete filepath if File.exists? filepath
+                Dir.rmdir File.join(Dir.pwd, 'media', download.id.to_s)
 
             elsif download.storage == "s3"
                 AWS::S3::S3Object.delete download.path, settings.bucket
